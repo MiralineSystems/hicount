@@ -1,0 +1,8 @@
+body {
+    font-family: Tahoma, Geneva, sans-serif;
+}
+
+.tickLabel{ font-size: 85%; }
+#stat-block-tbl td {text-align: center;}
+.hidden {display: none;}
+.disabled {color: grey;}

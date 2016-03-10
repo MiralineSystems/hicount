@@ -1,0 +1,171 @@
+doctype html
+html
+  head
+    title= title
+    script(type='text/javascript', src='/js/jquery.min.js')
+    script(type='text/javascript', src='/js/jquery.flot.min.js')
+    script(type='text/javascript', src='/js/jquery.flot.time.js')
+    script(type='text/javascript', src='/js/jquery.flot.selection.js')
+    script(type='text/javascript', src='/js/jquery-ui.min.js')
+    script(type='text/javascript', src='/js/jsviews.min.js')
+    script(type='text/javascript', src='/js/app-plot.min.js')
+    script(type='text/javascript', src='/js/app-ui.min.js')
+    link(rel='stylesheet', type='text/css', media='screen', href='/css/main.css')
+    link(rel='stylesheet', type='text/css', media='screen', href='/css/jquery-ui.min.css')
+    block head
+  body!= body
+   div(style='width: 100%; align: center;')
+    div(style='width: 1200px; margin-top: 10px; border: 1px; margin: 0 auto;')
+      #head-block(style='width: 720px; float: left; vertical-align: top;')
+        h2(style='margin-top: 0px;', align='center') HiCount
+      #corner-block(style='margin-left: 720px; vertical-align: top; padding-left: 20px;', align='left')
+        #login-block
+          = everyauth.user.google.name
+          //= ' ('+everyauth.user.google.email+')'
+          | 
+          a(href='/logout') Logout
+          | 
+          a(href='#',onclick='changeCur(0); return false;', title='Reload') Refresh
+      #separator(style='clear: both')
+      #graph-block(style='float: left; vertical-align: top;')
+        #hitsContainer(style='width: 720px; height: 400px; text-align: left;')
+        #ipsContainer(style='width: 720px; height: 400px; text-align: left;')
+      #info-block(style='margin-left: 720px; vertical-align: top; padding-left: 20px;', align='left')
+        #server-stat
+          | Status: 
+          span#status
+          br
+          | Time: 
+          span#datestr
+        br
+        br
+        #sites-block
+          | Site:
+          | 
+          select#sites
+          | 
+          a#showCodeDialog.hidden(href='#') get code
+          | 
+          a#showUsersDialog.hidden(href='#') manage users
+          br
+          a#showSitesDialog.hidden(href='#') Manage sites
+          a#addSiteDialog(href='#') Add new site
+        br
+        br
+        #granularities-block
+          | Granularity:
+          | 
+          select#granularities
+        #refreshes-block
+          | Refresh Interval:
+          | 
+          select#refreshes
+        br
+        br
+        #navi-block
+          | Day selected:
+          | 
+          span#date
+          br
+          button(onclick='changeCur(-1); return false;') ← Day
+          button(onclick='changeCur(1); return false;') Day →
+        br
+        br
+        #prevs-block
+          | Prev Period:
+          | 
+          select#prevs
+        #stat-block
+          table#stat-block-tbl(border='1', cellpadding='3', cellspacing='0')
+            tr
+              td
+              td Cur 24h
+              td#prevLabelDay Prev
+              td Cur 1h
+              td#prevLabelHour Prev
+            tr
+              td hits
+              td#hitsCurDay
+              td#hitsPrevDayChange
+              td#hitsCurHour
+              td#hitsPrevHourChange
+            tr
+              td ips
+              td#ipsCurDay
+              td#ipsPrevDayChange
+              td#ipsCurHour
+              td#ipsPrevHourChange
+        #tips-block
+          br
+          br
+          | Tips:
+          ul(style='margin-top: 0px;')
+            li Use mouse to select an area to zoom-in
+            li Double-click to reset zoom
+    #dialog-users.hidden(title='Manage Users')
+      p
+        span.ui-icon.ui-icon-alert(style='float: left; margin: 0 7px 20px 0;')
+        div#dialog-users-content
+    #dialog-adduser.hidden(title='Add User')
+      div#dialog-adduser-content
+        p
+          | Email: 
+          input(id="adduser-email", type="text")
+        p
+          | Can manage users: 
+          input(id="adduser-owner", type="checkbox")
+    #dialog-sites.hidden(title='Manage Sites')
+      p
+        span.ui-icon.ui-icon-alert(style='float: left; margin: 0 7px 20px 0;')
+        div#dialog-sites-content
+    #dialog-addsite.hidden(title='Add Site')
+      div#dialog-addsite-content
+        p
+          | Name: 
+          input(id="addsite-name", type="text")
+    #dialog-code.hidden(title='HTML Code')
+      p
+        span.ui-icon.ui-icon-alert(style='float: left; margin: 0 7px 20px 0;')
+        div#dialog-code-content
+          textarea#dialog-code-textarea(cols=75,rows=8,readonly=readonly,onclick="this.focus();this.select()")
+    script#usersTmpl(type='text/x-jsrender').
+      <table border="1" cellpadding="3" cellspacing="0">
+      <thead>
+      <tr><th>Name</th><th>Email</th><th>Access</th><th>Delete</th></tr>
+      </thead>
+      <tbody>
+      {{for users}}
+      <tr>
+        <td> {{:name}} </td>
+        <td> {{:email}} </td>
+        <td> {{if isOwner}}
+          owner
+        {{else}}
+          view only
+        {{/if}} </td>
+        <td> <a href="#" class="delUser" userID="{{:id}}">Delete</a> </td>
+      </tr>
+      {{/for}}
+      </tbody>
+      </table>
+    script#sitesTmpl(type='text/x-jsrender').
+      <table border="1" cellpadding="3" cellspacing="0">
+      <thead>
+      <tr><th>Name</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+      {{for sites}}
+      <tr>
+        <td style="min-width: 210px;"> <span class="siteName siteViewControl">{{:name}}</span> <input type="text" class="siteEditInput siteEditControl hidden" /></td>
+        <td style="min-width: 100px;"> 
+                <a href="#" class="editSite siteViewControl" siteID="{{:id}}">Edit</a>
+                <a href="#" class="saveSite siteEditControl hidden" siteID="{{:id}}">Save</a>
+                <a href="#" class="cancelSite siteEditControl hidden" siteID="{{:id}}">Cancel</a>
+                <a href="#" class="delSite siteViewControl" siteID="{{:id}}">Delete</a>
+        </td>
+      </tr>
+      {{/for}}
+      </tbody>
+      </table>
+ 
+ 

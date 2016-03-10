@@ -1,0 +1,17 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/css/style.css')
+  body!= body
+    h2 HiCount.org
+    p
+    | Please add your first website to monitor or ask someone to grant you access to an existing website
+    if error
+      p(style="color:red")
+        != error
+    form(method="post")
+      p
+        Website Name:
+      input(type="text",name="name",value="#{name}")
+      input(type="submit",value="Submit")

@@ -1,0 +1,8 @@
+bin/bulk.*
+var/
+node_modules/
+tmp/
+app*.min.js
+*.heapsnapshot
+*.heapsnapshot.gz
+lib/conf.js
